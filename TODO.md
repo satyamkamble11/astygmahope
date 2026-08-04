@@ -30,6 +30,14 @@
 - [x] 19. Update `PortalLoginModal.tsx` → Supabase sign-in with role-based access.
 - [x] 20. Update `AdminDashboard.tsx` → Supabase-backed CMS publish, sound vault add, settings.
 
+### Database Deployment
+- [x] 21. Deploy schema + seed data to Supabase PostgreSQL (via `scripts/deploy-db.cjs`).
+- [x] 22. Verify all tables populated in Supabase (doctors, services, testimonials, gallery, blog, sound, courses, faqs, settings).
+
+### Version Control
+- [x] 23. Initialize git repo, add remote, commit all code.
+- [x] 24. Push code to `https://github.com/satyamkamble11/astygmahope.git` (branch `main`).
+
 ### Verification
-- [x] 21. Run `npm run build` — ensure production-ready compilation.
-- [x] 22. Update `docs/` to reflect Supabase integration (optional).
+- [ ] 25. Run `npm run build` — ensure production-ready compilation.
+</content>
