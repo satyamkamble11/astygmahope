@@ -39,5 +39,5 @@
 - [x] 24. Push code to `https://github.com/satyamkamble11/astygmahope.git` (branch `main`).
 
 ### Verification
-- [ ] 25. Run `npm run build` — ensure production-ready compilation.
+- [x] 25. Run `npm run build` — ensure production-ready compilation (dist generated, 1900 modules, tsc passed).
 </content>
