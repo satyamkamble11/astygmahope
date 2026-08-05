@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Role } from '../../types';
-import { X, ShieldCheck, UserCheck, Stethoscope, Lock, Key, Database, AlertCircle } from 'lucide-react';
-import { supabase, isSupabaseConfigured } from '../../lib/supabase';
+import { X, ShieldCheck, Key, Database, AlertCircle, Server } from 'lucide-react';
+import { setToken } from '../../lib/api';
+import { login } from '../../lib/queries';
 
 interface PortalLoginModalProps {
   isOpen: boolean;
@@ -26,45 +27,18 @@ export const PortalLoginModal: React.FC<PortalLoginModalProps> = ({
     setErrorMsg('');
     setIsSubmitting(true);
 
-    if (isSupabaseConfigured) {
-      try {
-        const { data, error } = await supabase!.auth.signInWithPassword({
-          email: email.trim(),
-          password,
-        });
-        if (error) throw error;
+    try {
+      const res = await login(email.trim(), password);
+      // Store the JWT for subsequent authenticated API calls
+      setToken(res.token);
 
-        // Fetch the user's role from the profiles table
-        const userId = data.user?.id;
-        if (userId) {
-          const { data: profile, error: profileError } = await supabase!
-            .from('profiles')
-            .select('role')
-            .eq('id', userId)
-            .single();
-          if (profileError) throw profileError;
-
-          const role = (profile?.role as Role) || 'PATIENT';
-          onLoginSuccess(role);
-          onClose();
-        } else {
-          setErrorMsg('Unable to determine user profile.');
-        }
-      } catch (err) {
-        const e = err as { message?: string };
-        setErrorMsg(e?.message || 'Invalid credentials. Please check your email and password.');
-      } finally {
-        setIsSubmitting(false);
-      }
-      return;
-    }
-
-    // Demo / fallback mode (no Supabase configured)
-    if (password === '7522900512' || password === '123456' || password.length >= 4) {
-      onLoginSuccess('RECEPTIONIST');
+      const role = (res.user?.role as Role) || 'PATIENT';
+      onLoginSuccess(role);
       onClose();
-    } else {
-      setErrorMsg('Invalid staff security key. Try phone number 7522900512 or 123456.');
+    } catch (err) {
+      const e = err as { message?: string };
+      setErrorMsg(e?.message || 'Invalid credentials. Please check your email and password.');
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -91,8 +65,8 @@ export const PortalLoginModal: React.FC<PortalLoginModalProps> = ({
             Sign in with your staff account to access clinical triage queues & admin settings.
           </p>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-900 text-[10px] font-bold text-slate-700 dark:text-slate-300">
-            <Database className="w-3 h-3" />
-            <span>{isSupabaseConfigured ? 'Supabase secured backend' : 'Demo mode'}</span>
+            <Server className="w-3 h-3" />
+            <span>Render backend (JWT secured)</span>
           </div>
         </div>
 

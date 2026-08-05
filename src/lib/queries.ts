@@ -1,6 +1,5 @@
-import { supabase, isSupabaseConfigured } from './supabase';
+import { api } from './api';
 import type {
-  Database,
   AppointmentStatus,
   BranchName,
   PaymentMode,
@@ -10,30 +9,155 @@ import type {
 } from './database.types';
 
 // ---------------------------------------------------------------------------
-// Type aliases for row-level data used across the app
+// Row-level types returned by the backend (mirrors Supabase schema)
 // ---------------------------------------------------------------------------
-export type AppointmentRow = Database['public']['Tables']['appointments']['Row'];
-export type ContactMessageRow = Database['public']['Tables']['contact_messages']['Row'];
-export type FeedbackRow = Database['public']['Tables']['feedback']['Row'];
-export type DoctorRow = Database['public']['Tables']['doctors']['Row'];
-export type ServiceRow = Database['public']['Tables']['services']['Row'];
-export type TestimonialRow = Database['public']['Tables']['testimonials']['Row'];
-export type GalleryItemRow = Database['public']['Tables']['gallery_items']['Row'];
-export type BlogPostRow = Database['public']['Tables']['blog_posts']['Row'];
-export type SoundTrackRow = Database['public']['Tables']['sound_tracks']['Row'];
-export type CourseRow = Database['public']['Tables']['courses']['Row'];
-export type FaqRow = Database['public']['Tables']['faqs']['Row'];
-
-// ---------------------------------------------------------------------------
-// Generic error helper
-// ---------------------------------------------------------------------------
-export function getErrorMessage(error: { message?: string } | null): string {
-  return error?.message || 'Something went wrong. Please try again.';
+export interface AppointmentRow {
+  id: string;
+  patient_name: string;
+  patient_phone: string;
+  patient_city: string;
+  patient_email: string | null;
+  doctor_name: string | null;
+  service_name: string | null;
+  branch: BranchName;
+  preferred_date: string;
+  preferred_time: string;
+  payment_mode: PaymentMode;
+  consultation_fee: number;
+  notes: string | null;
+  sender_mobile: string | null;
+  utr_id: string | null;
+  status: AppointmentStatus;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
-// ===========================================================================
-// APPOINTMENTS
-// ===========================================================================
+export interface DoctorRow {
+  id: string;
+  name: string;
+  role: string | null;
+  title: string | null;
+  experience: string | null;
+  qualifications: string[];
+  bio: string | null;
+  highlights: string[];
+  image_path: string | null;
+  is_founder: boolean;
+  display_order: number;
+}
+
+export interface ServiceRow {
+  id: string;
+  slug: string;
+  title: string;
+  category: 'clinical' | 'holistic' | 'educational';
+  short_desc: string;
+  full_desc: string;
+  benefits: string[];
+  icon_name: string;
+  image_path: string | null;
+  display_order: number;
+}
+
+export interface TestimonialRow {
+  id: string;
+  name: string;
+  location: string | null;
+  rating: number;
+  review: string;
+  service: string | null;
+  image_path: string | null;
+  display_order: number;
+}
+
+export interface GalleryItemRow {
+  id: string;
+  title: string;
+  category: GalleryCategory;
+  path: string;
+  description: string | null;
+  is_video: boolean;
+  display_order: number;
+}
+
+export interface BlogPostRow {
+  id: string;
+  title: string;
+  category: PostCategory;
+  content: string;
+  media_url: string | null;
+  media_type: string;
+  media_list: string[];
+  author: string;
+  likes: number;
+  published_at: string | null;
+  created_at: string;
+}
+
+export interface SoundTrackRow {
+  id: string;
+  title: string;
+  category: SoundCategory;
+  duration: string;
+  file_path: string;
+  frequency_hz: number | null;
+  description: string | null;
+  is_custom_uploaded: boolean;
+  is_protected: boolean;
+  display_order: number;
+}
+
+export interface CourseRow {
+  id: string;
+  title: string;
+  category: string;
+  instructor: string;
+  duration: string;
+  description: string;
+  includes: string[];
+  is_paid: boolean;
+  price: string | null;
+  display_order: number;
+}
+
+export interface FaqRow {
+  id: string;
+  question: string;
+  answer: string;
+  category: string | null;
+  display_order: number;
+}
+
+export interface SettingsRow {
+  [key: string]: unknown;
+}
+
+// ---------------------------------------------------------------------------
+// Auth
+// ---------------------------------------------------------------------------
+export interface LoginResponse {
+  token: string;
+  user: {
+    id: string;
+    email: string;
+    fullName: string;
+    role: string;
+    phone?: string | null;
+  };
+}
+
+export async function login(email: string, password: string): Promise<LoginResponse> {
+  return api<LoginResponse>('/auth/login', { method: 'POST', body: { email, password } });
+}
+
+export async function fetchProfile(): Promise<{ id: string; email: string; fullName: string; role: string; phone?: string | null }> {
+  return api('/auth/profile', { auth: true });
+}
+
+// ---------------------------------------------------------------------------
+// Appointments
+// ---------------------------------------------------------------------------
 export interface NewAppointmentInput {
   patientName: string;
   patientPhone: string;
@@ -52,182 +176,67 @@ export interface NewAppointmentInput {
 }
 
 export async function fetchAppointments(): Promise<AppointmentRow[]> {
-  if (!supabase) return [];
-  const { data, error } = await supabase
-    .from('appointments')
-    .select('*')
-    .order('created_at', { ascending: false });
-  if (error) throw new Error(getErrorMessage(error));
-  return (data as AppointmentRow[]) ?? [];
+  return api<AppointmentRow[]>('/appointments', { auth: true });
 }
 
 export async function createAppointment(input: NewAppointmentInput): Promise<AppointmentRow> {
-  if (!supabase) throw new Error('Supabase is not configured.');
-  const { data, error } = await supabase
-    .from('appointments')
-    .insert({
-      patient_name: input.patientName,
-      patient_phone: input.patientPhone,
-      patient_city: input.patientCity,
-      patient_email: input.patientEmail || null,
-      doctor_name: input.doctorName || null,
-      service_name: input.serviceName || null,
-      branch: input.branch,
-      preferred_date: input.preferredDate,
-      preferred_time: input.preferredTime,
-      payment_mode: input.paymentMode,
-      consultation_fee: input.consultationFee,
-      notes: input.notes || null,
-      sender_mobile: input.senderMobile || null,
-      utr_id: input.utrId || null,
-      status: 'PENDING',
-    })
-    .select()
-    .single();
-  if (error) throw new Error(getErrorMessage(error));
-  return data as AppointmentRow;
+  return api<AppointmentRow>('/appointments', { method: 'POST', body: input });
 }
 
 export async function updateAppointmentStatus(
   id: string,
   status: AppointmentStatus
 ): Promise<AppointmentRow> {
-  if (!supabase) throw new Error('Supabase is not configured.');
-  const { data, error } = await supabase
-    .from('appointments')
-    .update({ status })
-    .eq('id', id)
-    .select()
-    .single();
-  if (error) throw new Error(getErrorMessage(error));
-  return data as AppointmentRow;
+  return api<AppointmentRow>(`/appointments/${id}/status`, {
+    method: 'PATCH',
+    body: { status },
+    auth: true,
+  });
 }
 
-// ===========================================================================
-// CONTACT MESSAGES
-// ===========================================================================
-export interface NewContactMessageInput {
-  name: string;
-  phone: string;
-  email?: string;
-  message: string;
-}
-
-export async function createContactMessage(input: NewContactMessageInput): Promise<ContactMessageRow> {
-  if (!supabase) throw new Error('Supabase is not configured.');
-  const { data, error } = await supabase
-    .from('contact_messages')
-    .insert({
-      name: input.name,
-      phone: input.phone,
-      email: input.email || null,
-      message: input.message,
-    })
-    .select()
-    .single();
-  if (error) throw new Error(getErrorMessage(error));
-  return data as ContactMessageRow;
-}
-
-// ===========================================================================
-// FEEDBACK
-// ===========================================================================
-export interface NewFeedbackInput {
-  name: string;
-  rating: number;
-  text: string;
-}
-
-export async function createFeedback(input: NewFeedbackInput): Promise<FeedbackRow> {
-  if (!supabase) throw new Error('Supabase is not configured.');
-  const { data, error } = await supabase
-    .from('feedback')
-    .insert({
-      name: input.name,
-      rating: input.rating,
-      text: input.text,
-      is_approved: true,
-    })
-    .select()
-    .single();
-  if (error) throw new Error(getErrorMessage(error));
-  return data as FeedbackRow;
-}
-
-export async function fetchApprovedFeedback(): Promise<FeedbackRow[]> {
-  if (!supabase) return [];
-  const { data, error } = await supabase
-    .from('feedback')
-    .select('*')
-    .eq('is_approved', true)
-    .order('created_at', { ascending: false })
-    .limit(4);
-  if (error) throw new Error(getErrorMessage(error));
-  return (data as FeedbackRow[]) ?? [];
-}
-
-// ===========================================================================
-// DOCTORS
-// ===========================================================================
+// ---------------------------------------------------------------------------
+// Public content
+// ---------------------------------------------------------------------------
 export async function fetchDoctors(): Promise<DoctorRow[]> {
-  if (!supabase) return [];
-  const { data, error } = await supabase
-    .from('doctors')
-    .select('*')
-    .eq('is_active', true)
-    .order('display_order', { ascending: true });
-  if (error) throw new Error(getErrorMessage(error));
-  return (data as DoctorRow[]) ?? [];
+  return api<DoctorRow[]>('/doctors');
 }
 
-// ===========================================================================
-// SERVICES
-// ===========================================================================
 export async function fetchServices(): Promise<ServiceRow[]> {
-  if (!supabase) return [];
-  const { data, error } = await supabase
-    .from('services')
-    .select('*')
-    .eq('is_active', true)
-    .order('display_order', { ascending: true });
-  if (error) throw new Error(getErrorMessage(error));
-  return (data as ServiceRow[]) ?? [];
+  return api<ServiceRow[]>('/services');
 }
 
-// ===========================================================================
-// TESTIMONIALS
-// ===========================================================================
 export async function fetchTestimonials(): Promise<TestimonialRow[]> {
-  if (!supabase) return [];
-  const { data, error } = await supabase
-    .from('testimonials')
-    .select('*')
-    .eq('is_active', true)
-    .eq('is_approved', true)
-    .order('display_order', { ascending: true });
-  if (error) throw new Error(getErrorMessage(error));
-  return (data as TestimonialRow[]) ?? [];
+  return api<TestimonialRow[]>('/testimonials');
 }
 
-// ===========================================================================
-// GALLERY
-// ===========================================================================
 export async function fetchGallery(Category?: GalleryCategory): Promise<GalleryItemRow[]> {
-  if (!supabase) return [];
-  let query = supabase
-    .from('gallery_items')
-    .select('*')
-    .eq('is_active', true)
-    .order('display_order', { ascending: true });
-  if (Category) query = query.eq('category', Category);
-  const { data, error } = await query;
-  if (error) throw new Error(getErrorMessage(error));
-  return (data as GalleryItemRow[]) ?? [];
+  const qs = Category ? `?category=${encodeURIComponent(Category)}` : '';
+  return api<GalleryItemRow[]>(`/gallery${qs}`);
 }
 
-// ===========================================================================
-// BLOG POSTS
-// ===========================================================================
+export async function fetchBlogPosts(): Promise<BlogPostRow[]> {
+  return api<BlogPostRow[]>('/blog-posts');
+}
+
+export async function fetchSoundTracks(): Promise<SoundTrackRow[]> {
+  return api<SoundTrackRow[]>('/sound-tracks');
+}
+
+export async function fetchCourses(): Promise<CourseRow[]> {
+  return api<CourseRow[]>('/courses');
+}
+
+export async function fetchFaqs(): Promise<FaqRow[]> {
+  return api<FaqRow[]>('/faqs');
+}
+
+export async function fetchSettings(): Promise<SettingsRow> {
+  return api<SettingsRow>('/settings');
+}
+
+// ---------------------------------------------------------------------------
+// Admin / CMS
+// ---------------------------------------------------------------------------
 export interface NewBlogPostInput {
   title: string;
   category: PostCategory;
@@ -238,41 +247,10 @@ export interface NewBlogPostInput {
   author: string;
 }
 
-export async function fetchBlogPosts(): Promise<BlogPostRow[]> {
-  if (!supabase) return [];
-  const { data, error } = await supabase
-    .from('blog_posts')
-    .select('*')
-    .eq('is_published', true)
-    .order('published_at', { ascending: false });
-  if (error) throw new Error(getErrorMessage(error));
-  return (data as BlogPostRow[]) ?? [];
-}
-
 export async function createBlogPost(input: NewBlogPostInput): Promise<BlogPostRow> {
-  if (!supabase) throw new Error('Supabase is not configured.');
-  const { data, error } = await supabase
-    .from('blog_posts')
-    .insert({
-      title: input.title,
-      category: input.category,
-      content: input.content,
-      media_url: input.mediaUrl || null,
-      media_type: input.mediaType || 'image',
-      media_list: input.mediaList || [],
-      author: input.author,
-      is_published: true,
-      published_at: new Date().toISOString(),
-    })
-    .select()
-    .single();
-  if (error) throw new Error(getErrorMessage(error));
-  return data as BlogPostRow;
+  return api<BlogPostRow>('/cms/posts', { method: 'POST', body: input, auth: true });
 }
 
-// ===========================================================================
-// SOUND TRACKS
-// ===========================================================================
 export interface NewSoundTrackInput {
   title: string;
   category: SoundCategory;
@@ -282,62 +260,33 @@ export interface NewSoundTrackInput {
   description?: string;
 }
 
-export async function fetchSoundTracks(): Promise<SoundTrackRow[]> {
-  if (!supabase) return [];
-  const { data, error } = await supabase
-    .from('sound_tracks')
-    .select('*')
-    .eq('is_active', true)
-    .order('display_order', { ascending: true });
-  if (error) throw new Error(getErrorMessage(error));
-  return (data as SoundTrackRow[]) ?? [];
-}
-
 export async function createSoundTrack(input: NewSoundTrackInput): Promise<SoundTrackRow> {
-  if (!supabase) throw new Error('Supabase is not configured.');
-  const { data, error } = await supabase
-    .from('sound_tracks')
-    .insert({
-      title: input.title,
-      category: input.category,
-      duration: input.duration,
-      file_path: input.filePath,
-      frequency_hz: input.frequencyHz || null,
-      description: input.description || null,
-      is_custom_uploaded: true,
-    })
-    .select()
-    .single();
-  if (error) throw new Error(getErrorMessage(error));
-  return data as SoundTrackRow;
+  return api<SoundTrackRow>('/cms/sound-tracks', { method: 'POST', body: input, auth: true });
 }
 
-// ===========================================================================
-// COURSES
-// ===========================================================================
-export async function fetchCourses(): Promise<CourseRow[]> {
-  if (!supabase) return [];
-  const { data, error } = await supabase
-    .from('courses')
-    .select('*')
-    .eq('is_active', true)
-    .order('display_order', { ascending: true });
-  if (error) throw new Error(getErrorMessage(error));
-  return (data as CourseRow[]) ?? [];
+// ---------------------------------------------------------------------------
+// Contact / Feedback
+// ---------------------------------------------------------------------------
+export interface NewContactMessageInput {
+  name: string;
+  phone: string;
+  email?: string;
+  message: string;
 }
 
-// ===========================================================================
-// FAQS
-// ===========================================================================
-export async function fetchFaqs(): Promise<FaqRow[]> {
-  if (!supabase) return [];
-  const { data, error } = await supabase
-    .from('faqs')
-    .select('*')
-    .eq('is_active', true)
-    .order('display_order', { ascending: true });
-  if (error) throw new Error(getErrorMessage(error));
-  return (data as FaqRow[]) ?? [];
+export async function createContactMessage(input: NewContactMessageInput): Promise<unknown> {
+  return api('/contact-messages', { method: 'POST', body: input });
 }
 
-export { isSupabaseConfigured };
+export interface NewFeedbackInput {
+  name: string;
+  rating: number;
+  text: string;
+}
+
+export async function createFeedback(input: NewFeedbackInput): Promise<unknown> {
+  return api('/feedback', { method: 'POST', body: input });
+}
+
+// Keep an alias for compatibility with imports in the codebase.
+export const isSupabaseConfigured = true;
