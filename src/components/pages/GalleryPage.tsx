@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../../context/LanguageContext';
 import { fetchGallery, isSupabaseConfigured } from '../../lib/queries';
 import { 
@@ -11,13 +11,14 @@ import {
   Users, 
   Sparkles, 
   Play,
-  CheckCircle2
+  CheckCircle2,
+  X
 } from 'lucide-react';
 
 type GalleryCategory = 'All' | 'Clinic' | 'Reception' | 'Lab' | 'Doctors' | 'Staff' | 'Events' | 'Workshops' | 'Videos';
 
 interface GalleryItem {
-  id: number;
+  id: number | string;
   title: string;
   category: string;
   path: string;
@@ -29,6 +30,7 @@ export const GalleryPage: React.FC = () => {
   const { t } = useLanguage();
   const [activeCategory, setActiveCategory] = useState<GalleryCategory>('All');
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+  const [selectedVideo, setSelectedVideo] = useState<GalleryItem | null>(null);
 
   useEffect(() => {
     if (!isSupabaseConfigured) return;
@@ -38,14 +40,16 @@ export const GalleryPage: React.FC = () => {
         const rows = await fetchGallery();
         if (cancelled) return;
         const mapped: GalleryItem[] = rows.map((r) => ({
-          id: 0,
+          id: r.id,
           title: r.title,
           category: r.category,
           path: r.path,
           desc: r.description || undefined,
           isVideo: r.is_video || undefined,
         }));
-        setGalleryItems(mapped);
+        if (mapped.length > 0) {
+          setGalleryItems(mapped);
+        }
       } catch (e) {
         console.error('Failed to load gallery from Supabase:', e);
       }
@@ -55,7 +59,63 @@ export const GalleryPage: React.FC = () => {
     };
   }, []);
 
-  const defaultGalleryItems = [
+  const defaultGalleryItems: GalleryItem[] = [
+    {
+      id: "vid-1",
+      title: "आई-बाबा होण्याचं स्वप्न आता दूर नाही - Astygma Hope Clinic",
+      category: "Videos",
+      path: "/assets/gallery/आई-बाबा होण्याचं स्वप्न आता दूर नाही… 👶✨योग्य मार्गदर्शन, तपासण्या आणि उपचारांसाठीभेट द्या Asty.mp4",
+      isVideo: true,
+      desc: "योग्य मार्गदर्शन, तपासण्या आणि निसर्गाशी सुसंगत उपचारांसाठी भेट द्या अस्टिग्मा होप क्लिनिक."
+    },
+    {
+      id: "vid-2",
+      title: "आशेपासून आनंदापर्यंतचा प्रवास - रुग्ण अनुभव",
+      category: "Videos",
+      path: "/assets/gallery/आशेपासून आनंदापर्यंतचा प्रवास 🌸Astygma Hope Clinic मधील उपचारांमुळे रुग्णाला मिळाले सकारात्मक प.mp4",
+      isVideo: true,
+      desc: "Astygma Hope Clinic मधील उपचारांमुळे रुग्णाला मिळाले सकारात्मक परिणाम व अपत्यप्राप्तीचा आनंद."
+    },
+    {
+      id: "vid-3",
+      title: "5 वर्षांच्या प्रयत्नांनंतर मिळालेली आनंदाची बातमी",
+      category: "Videos",
+      path: "/assets/gallery/“5 वर्षांपासून प्रयत्न… पण result नाही 😢आता Ayurvedic treatment ने मिळवा GOOD NEWS! 🤰💖Call No.mp4",
+      isVideo: true,
+      desc: "Ayurvedic fertility treatment आणि Dr. Umesh Datta Kalekar यांचे विशेष मार्गदर्शन."
+    },
+    {
+      id: "vid-4",
+      title: "Your Journey to Parenthood Starts Here",
+      category: "Videos",
+      path: "/assets/gallery/“Your journey to parenthood starts here.” 👨_👩_👧_👦#hospitality #hospital.mp4",
+      isVideo: true,
+      desc: "Comprehensive fertility care, advanced ultrasound diagnostics, and Garbhasanskar."
+    },
+    {
+      id: "vid-5",
+      title: "आशा ठेवा… चमत्कार घडू शकतो!",
+      category: "Videos",
+      path: "/assets/gallery/✨ “आशा ठेवा… चमत्कार घडू शकतो.” 👶💖“वंध्यत्व उपचार, तपासण्या आणि समुपदेशन —कारण तुमचं आई-वडील ह.mp4",
+      isVideo: true,
+      desc: "वंध्यत्व उपचार, आधुनिक तपासण्या आणि मानसोपचार समुपदेशन."
+    },
+    {
+      id: "vid-6",
+      title: "Shirol Branch Location & Route Guide",
+      category: "Videos",
+      path: "/assets/gallery/📍 Location-शिरोळ बस स्टँड जवळसंभाजी चौक पासून सरळ 100 मीटरश्री दत्तनगरी सह. पंचसंस्था समोर🏥 As.mp4",
+      isVideo: true,
+      desc: "शिरोळ बस स्टँड जवळ (250m अंतर), संभाजी चौक पासून सरळ 100 मीटर."
+    },
+    {
+      id: "vid-7",
+      title: "Shirol & Kolhapur Branch Helpline Video",
+      category: "Videos",
+      path: "/assets/gallery/📞 आत्ताच संपर्क करा- 7522900512📍 शिरोळ - कोल्हापूर#viralreels #infertility #pregnancyfac#hospi.mp4",
+      isVideo: true,
+      desc: "📞 संपर्क क्रमांक: 7522900512 - शिरोळ व कोल्हापूर शाखा माहिती."
+    },
     {
       id: 1,
       title: "Astygma Hope Clinic Shirol Branch",
@@ -111,14 +171,6 @@ export const GalleryPage: React.FC = () => {
       category: "Staff",
       path: "/assets/staff/nursing_staff.jpg",
       desc: "Experienced clinical care team at Shirol."
-    },
-    {
-      id: 8,
-      title: "Sonography & Follicular Study Video",
-      category: "Videos",
-      path: "/assets/sonography/follicular_study.mp4",
-      isVideo: true,
-      desc: "High-resolution follicular tracking demonstration clip."
     }
   ];
 
@@ -188,28 +240,35 @@ export const GalleryPage: React.FC = () => {
             viewport={{ once: true, amount: 0.15 }}
             transition={{ duration: 0.42, delay: idx * 0.04 }}
             whileHover={{ y: -6 }}
-            className="glass-panel rounded-3xl overflow-hidden shadow-lg border border-gray-200/50 dark:border-gray-800/50 group premium-card"
+            className="glass-panel rounded-3xl overflow-hidden shadow-lg border border-gray-200/50 dark:border-gray-800/50 group premium-card cursor-pointer"
+            onClick={() => item.isVideo && setSelectedVideo(item)}
           >
             
             <div className="aspect-video bg-gradient-to-br from-emerald-950 to-teal-950 flex flex-col items-center justify-center text-white relative overflow-hidden">
-              {item.category === 'Doctors' ? (
-                <img 
-                  src={item.path} 
-                  alt={item.title} 
-                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
-                />
-              ) : item.isVideo ? (
-                <div className="flex flex-col items-center justify-center space-y-2 p-6 text-center">
-                  <div className="w-12 h-12 rounded-full bg-teal-500/20 border border-teal-400/40 flex items-center justify-center text-teal-300 group-hover:scale-110 transition-transform">
-                    <Play className="w-6 h-6 fill-current ml-1" />
+              {item.isVideo ? (
+                <div className="relative w-full h-full flex items-center justify-center">
+                  <video 
+                    src={encodeURI(item.path)} 
+                    className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-300"
+                    muted
+                    preload="metadata"
+                  />
+                  <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center space-y-2 p-4 text-center">
+                    <div className="w-14 h-14 rounded-full bg-teal-500/90 text-emerald-950 flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+                      <Play className="w-7 h-7 fill-current ml-1" />
+                    </div>
+                    <span className="text-xs font-bold line-clamp-1">{item.title}</span>
                   </div>
-                  <span className="text-xs font-bold">{item.title}</span>
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center space-y-2 p-6 text-center">
-                  <Camera className="w-8 h-8 text-amber-400 opacity-70" />
-                  <span className="text-xs font-serif font-bold">{item.title}</span>
-                </div>
+                <img 
+                  src={encodeURI(item.path)} 
+                  alt={item.title} 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = 'none';
+                  }}
+                />
               )}
 
               <span className="absolute top-3 right-3 px-2.5 py-0.5 rounded-full bg-black/60 text-white text-[10px] font-bold uppercase backdrop-blur-md">
@@ -218,13 +277,55 @@ export const GalleryPage: React.FC = () => {
             </div>
 
             <div className="p-5 space-y-1">
-              <h4 className="font-serif font-bold text-sm text-emerald-950 dark:text-white">{item.title}</h4>
-              <p className="text-xs text-gray-500">{item.desc}</p>
+              <h4 className="font-serif font-bold text-sm text-emerald-950 dark:text-white line-clamp-1">{item.title}</h4>
+              <p className="text-xs text-gray-500 line-clamp-2">{item.desc}</p>
             </div>
 
           </motion.div>
         ))}
       </div>
+
+      {/* Video Modal Player */}
+      <AnimatePresence>
+        {selectedVideo && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="glass-panel w-full max-w-3xl rounded-3xl p-6 space-y-4 shadow-2xl border border-teal-500/30 bg-gray-950 text-white relative"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="px-2.5 py-0.5 rounded bg-teal-500/20 text-teal-300 text-[10px] font-bold uppercase">
+                    {selectedVideo.category}
+                  </span>
+                  <h3 className="font-serif font-bold text-lg text-white mt-1">
+                    {selectedVideo.title}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setSelectedVideo(null)}
+                  className="p-2 rounded-full hover:bg-gray-800 text-gray-400 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="aspect-video rounded-2xl overflow-hidden bg-black border border-gray-800">
+                <video
+                  src={encodeURI(selectedVideo.path)}
+                  controls
+                  autoPlay
+                  className="w-full h-full object-contain"
+                />
+              </div>
+
+              <p className="text-xs text-gray-400">{selectedVideo.desc}</p>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

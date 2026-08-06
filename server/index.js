@@ -13,10 +13,19 @@ const app = express();
 // Trust Render's proxy so req.ip / secure cookies work correctly
 app.set('trust proxy', 1);
 
-// CORS — allow the Cloudflare Pages frontend
+// CORS — permissive for frontend origins (Cloudflare Pages, Vercel, localhost)
 app.use(
   cors({
-    origin: config.clientUrl.split(',').map((u) => u.trim()),
+    origin: (origin, callback) => {
+      if (!origin || config.clientUrl === '*' || config.clientUrl.includes('*')) {
+        return callback(null, true);
+      }
+      const allowed = config.clientUrl.split(',').map((u) => u.trim());
+      if (allowed.includes(origin) || origin.endsWith('.pages.dev')) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -25,6 +34,33 @@ app.use(
 
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Root welcome endpoint (Fixes Render "Endpoint not found" on GET /)
+app.get('/', (req, res) => {
+  res.json({
+    status: 'online',
+    name: 'Astygma Hope Clinic Backend API',
+    version: '1.0.0',
+    health: '/health',
+    apiBase: '/api',
+    endpoints: {
+      health: '/health',
+      auth: '/api/auth',
+      appointments: '/api/appointments',
+      doctors: '/api/doctors',
+      services: '/api/services',
+      testimonials: '/api/testimonials',
+      gallery: '/api/gallery',
+      blogPosts: '/api/blog-posts',
+      soundTracks: '/api/sound-tracks',
+      courses: '/api/courses',
+      faqs: '/api/faqs',
+      settings: '/api/settings',
+      contact: '/api/contact-messages',
+      feedback: '/api/feedback'
+    }
+  });
+});
 
 // Health check (used by Render)
 app.get('/health', async (req, res) => {
@@ -36,6 +72,15 @@ app.get('/health', async (req, res) => {
   }
 });
 
+// Base API status endpoint
+app.get('/api', (req, res) => {
+  res.json({
+    status: 'online',
+    message: 'Astygma Hope Clinic Production API Endpoint Base',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/appointments', appointmentRoutes);
@@ -44,7 +89,7 @@ app.use('/api', contactRoutes);
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ error: 'Endpoint not found.' });
+  res.status(404).json({ error: `Endpoint '${req.originalUrl}' not found.` });
 });
 
 // Error handler

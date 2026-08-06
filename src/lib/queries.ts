@@ -288,5 +288,19 @@ export async function createFeedback(input: NewFeedbackInput): Promise<unknown> 
   return api('/feedback', { method: 'POST', body: input });
 }
 
+export async function fetchApprovedFeedback(): Promise<Array<{ id: string; name: string; text: string; rating: number }>> {
+  try {
+    const testimonials = await fetchTestimonials();
+    return testimonials.map(t => ({
+      id: t.id,
+      name: t.name,
+      text: t.review,
+      rating: t.rating
+    }));
+  } catch {
+    return [];
+  }
+}
+
 // Keep an alias for compatibility with imports in the codebase.
 export const isSupabaseConfigured = true;

@@ -153,7 +153,8 @@ export const SERVICES_DATA: ServiceItem[] = [
     shortDesc: "Precise hormonal panels, infectious disease screening, genetic carrier testing, and routine hematology.",
     fullDesc: "In-house clinical lab offering fast, precise diagnostic panels tailored specifically for reproductive medicine, thyroid regulation, and metabolic health.",
     benefits: ["AMH, FSH, LH, E2, Progesterone Panels", "Male Hormone Profiling", "Thyroid & Metabolic Assessments", "In-House Rapid Reporting"],
-    iconName: "Microscope"
+    iconName: "Microscope",
+    imagePath: "/assets/clinic/laboratory_tests.jpg"
   },
   {
     id: "diet-lifestyle-guidance",
@@ -162,7 +163,8 @@ export const SERVICES_DATA: ServiceItem[] = [
     shortDesc: "Customized fertility nutritional plans, circadian rhythm realignment, and detoxification pathways.",
     fullDesc: "Cellular nutrition plays a central role in egg and sperm quality. Dr. Kalekar's protocol incorporates anti-inflammatory dietary strategies, gut microbiome restoration, and daily habit realignment.",
     benefits: ["Anti-Inflammatory Fertility Diet", "Circadian & Sleep Optimization", "Endocrine Disruptor Elimination", "Micronutrient Supplementation"],
-    iconName: "Apple"
+    iconName: "Apple",
+    imagePath: "/assets/clinic/diet_lifestyle.jpg"
   },
   {
     id: "yoga-therapy",
@@ -191,7 +193,8 @@ export const SERVICES_DATA: ServiceItem[] = [
     shortDesc: "Evidence-informed natural fertility principles, Panchakarma preparation, and Rasayana rejuvenation therapies.",
     fullDesc: "Educational guidance grounded in classical Ayurvedic reproductive physiology (Beeja Shuddhi), preparing couples physically and mentally for healthy conception.",
     benefits: ["Natural Body Detox Principles", "Beeja Shuddhi Preparation", "Rasayana Rejuvenation Protocols", "Seasonal Conception Guidance"],
-    iconName: "BookOpen"
+    iconName: "BookOpen",
+    imagePath: "/assets/clinic/ayurvedic_fertility.jpg"
   },
   {
     id: "scientific-garbhasanskar-guide",
@@ -200,7 +203,8 @@ export const SERVICES_DATA: ServiceItem[] = [
     shortDesc: "Structured pre-conception and intra-uterine cognitive development practices based on neuroscience and ancient wisdom.",
     fullDesc: "Scientific Garbhasanskar blends modern epigenetics and fetal psychology with traditional mental bonding exercises, giving unborn children an optimal emotional and cognitive start.",
     benefits: ["Epigenetic Fetal Stimulation", "Pre-Conception Mental Alignment", "Maternal Emotional Bonding", "Neuro-Sensory Development"],
-    iconName: "Sparkles"
+    iconName: "Sparkles",
+    imagePath: "/assets/clinic/scientific_garbhasanskar.jpg"
   },
   {
     id: "suprajaa-nirmiti-program",
@@ -209,7 +213,8 @@ export const SERVICES_DATA: ServiceItem[] = [
     shortDesc: "Our flagship comprehensive program integrating Ultra Yoga, A-Dhyand Meditation, Sangeetopchar, and Clinical Medicine.",
     fullDesc: "The ultimate transformation protocol created by Dr. Umesh Datta Kalekar. Suprajaa Nirmiti brings together medicine, mind, sound, and yoga into one unified journey for couples seeking high-vibrational parenthood.",
     benefits: ["Unified Clinical & Holistic Care", "Personalized Dr. Kalekar Consultations", "Exclusive Access to Healing Vault", "Complete Mind-Body Transformation"],
-    iconName: "Award"
+    iconName: "Award",
+    imagePath: "/assets/clinic/suprajaa_nirmiti.jpg"
   }
 ];
 
