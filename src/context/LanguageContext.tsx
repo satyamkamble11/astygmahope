@@ -546,9 +546,9 @@ heroSubtitle: {
   officialEmail: { EN: "Official Email:", MR: "अधिकृत ईमेल:", HI: "आधिकारिक ईमेल:" },
   openWhatsAppChat: { EN: "Open Direct WhatsApp Chat", MR: "थेट व्हॉट्सॲप चॅट उघडा", HI: "सीधा व्हाट्सएप चैट खोलें" },
   requestAppointment500: {
-    EN: "Request Appointment • ₹500",
-    MR: "अपॉइंटमेंटची विनंती करा • ₹५००",
-    HI: "अपॉइंटमेंट का अनुरोध करें • ₹500"
+    EN: "Book your appointment!",
+    MR: "तुमची अपॉइंटमेंट बुक करा!",
+    HI: "अपनी अपॉइंटमेंट बुक करें!"
   },
   sendInquiry: { EN: "Send an Online Inquiry", MR: "ऑनलाइन चौकशी पाठवा", HI: "ऑनलाइन पूछताछ भेजें" },
   inquirySuccess: {

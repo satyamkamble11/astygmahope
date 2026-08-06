@@ -50,24 +50,53 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPortal, setActiveTab }) =>
           </div>
         </div>
 
-        {/* Column 2: Branch Address & Hours */}
-        <div className="space-y-3">
-          <h4 className="font-semibold text-sm text-emerald-950 dark:text-white uppercase tracking-wider">
-            {t('shirolBranchLocation')}
-          </h4>
-          <div className="flex items-start gap-2.5 text-xs text-gray-600 dark:text-gray-300">
-            <MapPin className="w-4 h-4 text-emerald-700 dark:text-teal-400 shrink-0 mt-0.5" />
-            <a href={CLINIC_DATA.branches.shirol.gmapsUrl} target="_blank" rel="noreferrer" className="hover:underline">
-              {CLINIC_DATA.address.line1}, {CLINIC_DATA.address.line2}, {CLINIC_DATA.address.landmark}, {CLINIC_DATA.address.city}, {CLINIC_DATA.address.state} - {CLINIC_DATA.address.pincode}, {CLINIC_DATA.address.country}
-            </a>
+        {/* Column 2: Branches & Map Links */}
+        <div className="space-y-4 lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-4">
+          <div className="space-y-2.5">
+            <h4 className="font-semibold text-sm text-emerald-950 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+              <MapPin className="w-4 h-4 text-emerald-700 dark:text-teal-400 shrink-0" />
+              <span>Shirol HQ Branch</span>
+            </h4>
+            <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+              <a 
+                href="https://maps.google.com/?q=Astygma+Hope+Clinic+Shirol+Maharashtra" 
+                target="_blank" 
+                rel="noreferrer" 
+                className="hover:underline font-medium text-emerald-950 dark:text-teal-300"
+                title="Click to view on Google Maps"
+              >
+                📍 Main Road, Mall Bhag, Shirol, Maharashtra 416103. <br/>
+                <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">(250m from Shirol Bus Stand)</span>
+              </a>
+            </p>
+            <p className="text-[11px] text-gray-500">
+              ⏰ Tue, Thu, Fri, Sat (10 AM - 6 PM)<br/>
+              • Sonography Available
+            </p>
           </div>
-          <div className="flex items-center gap-2.5 text-xs text-gray-600 dark:text-gray-300 pt-1">
-            <Clock className="w-4 h-4 text-emerald-700 dark:text-teal-400 shrink-0" />
-            <span>{CLINIC_DATA.branches.shirol.daysAvailable} ({CLINIC_DATA.branches.shirol.hours})</span>
+
+          <div className="space-y-2.5">
+            <h4 className="font-semibold text-sm text-emerald-950 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+              <MapPin className="w-4 h-4 text-emerald-700 dark:text-teal-400 shrink-0" />
+              <span>Kolhapur Branch</span>
+            </h4>
+            <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+              <a 
+                href="https://www.mappls.com/place-astygma+hope+clinic-rankala+mhada+sankul-near+deshmukh+hall-hari+om+nagar-kolhapur-maharashtra-416012-rs0ajq@zdata=MTYuNjgzMjM2Kzc0LjIxNTUwNysxNytyczBhanErKw==ed" 
+                target="_blank" 
+                rel="noreferrer" 
+                className="hover:underline font-medium text-emerald-950 dark:text-teal-300"
+                title="Click to view on Mappls Map"
+              >
+                📍 Near Deshmukh Hall, Hari Om Nagar, Kolhapur 416008. <br/>
+                <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">(1.5 km from Station)</span>
+              </a>
+            </p>
+            <p className="text-[11px] text-gray-500">
+              ⏰ Mon & Wed (10 AM - 5 PM)<br/>
+              • Consultation & Holistic Guidance
+            </p>
           </div>
-          <p className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold pl-6">
-            • {t('sundayClosed')}
-          </p>
         </div>
 
         {/* Column 3: Contact & Direct Actions */}

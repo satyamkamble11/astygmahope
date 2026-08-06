@@ -15,10 +15,7 @@ import {
   Wallet,
   ArrowRight,
   ArrowLeft,
-  CreditCard,
-  QrCode,
   Smartphone,
-  PhoneCall,
   Hash,
   BadgeCheck,
   IndianRupee,
@@ -35,7 +32,6 @@ interface AppointmentModalProps {
 const UPI_ID = 'aimsdk9520@oksbi';
 const CONSULTATION_FEE = 500;
 const RECEIVER_PHONE = CLINIC_DATA.whatsApp.replace(/[^0-9]/g, '');
-const RECEIVER_PHONE_DISPLAY = CLINIC_DATA.whatsApp;
 
 interface UpiApp {
   name: string;
@@ -44,11 +40,11 @@ interface UpiApp {
 }
 
 const UPI_APPS: UpiApp[] = [
-  { name: 'Google Pay', packageName: 'com.google.android.apps.nbu.paisa.user', intent: 'intent://pay?pa=aimsdk9520@oksbi&pn=Astygma%20Hope%20Clinic&am=500&cu=INR&tn=Consultation%20Fee#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end' },
-  { name: 'PhonePe', packageName: 'com.phonepe.app', intent: 'intent://pay?pa=aimsdk9520@oksbi&pn=Astygma%20Hope%20Clinic&am=500&cu=INR&tn=Consultation%20Fee#Intent;scheme=upi;package=com.phonepe.app;end' },
-  { name: 'Paytm', packageName: 'net.one97.paytm', intent: 'intent://pay?pa=aimsdk9520@oksbi&pn=Astygma%20Hope%20Clinic&am=500&cu=INR&tn=Consultation%20Fee#Intent;scheme=upi;package=net.one97.paytm;end' },
-  { name: 'BHIM UPI', packageName: 'in.org.npci.upiapp', intent: 'intent://pay?pa=aimsdk9520@oksbi&pn=Astygma%20Hope%20Clinic&am=500&cu=INR&tn=Consultation%20Fee#Intent;scheme=upi;package=in.org.npci.upiapp;end' },
-  { name: 'Other UPI App', packageName: '', intent: `upi://pay?pa=${UPI_ID}&pn=Astygma%20Hope%20Clinic&am=500&cu=INR&tn=Consultation%20Fee` },
+  { name: 'Google Pay', packageName: 'com.google.android.apps.nbu.paisa.user', intent: 'intent://pay?pa=aimsdk9520@oksbi&pn=Astygma%20Hope%20Clinic&cu=INR&tn=Book%20your%20appointment#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end' },
+  { name: 'PhonePe', packageName: 'com.phonepe.app', intent: 'intent://pay?pa=aimsdk9520@oksbi&pn=Astygma%20Hope%20Clinic&cu=INR&tn=Book%20your%20appointment#Intent;scheme=upi;package=com.phonepe.app;end' },
+  { name: 'Paytm', packageName: 'net.one97.paytm', intent: 'intent://pay?pa=aimsdk9520@oksbi&pn=Astygma%20Hope%20Clinic&cu=INR&tn=Book%20your%20appointment#Intent;scheme=upi;package=net.one97.paytm;end' },
+  { name: 'BHIM UPI', packageName: 'in.org.npci.upiapp', intent: 'intent://pay?pa=aimsdk9520@oksbi&pn=Astygma%20Hope%20Clinic&cu=INR&tn=Book%20your%20appointment#Intent;scheme=upi;package=in.org.npci.upiapp;end' },
+  { name: 'Other UPI App', packageName: '', intent: `upi://pay?pa=${UPI_ID}&pn=Astygma%20Hope%20Clinic&tn=Book%20your%20appointment` },
 ];
 
 const isValidIndianMobile = (value: string): boolean => {
@@ -91,6 +87,9 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({ isOpen, onCl
   const [stepError, setStepError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [paymentModeError, setPaymentModeError] = useState('');
+  
+  // UPI Scanner zoom state
+  const [zoomScanner, setZoomScanner] = useState(false);
 
   const today = useMemo(() => {
     const d = new Date();
@@ -99,8 +98,6 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({ isOpen, onCl
     const day = String(d.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }, []);
-
-  const nextAvailableDates = useMemo(() => getNextAvailableDates(branch, 5), [branch]);
 
   const prevOpenRef = useRef(isOpen);
   useEffect(() => {
@@ -261,7 +258,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({ isOpen, onCl
     setSubmittedApt(apt);
   };
 
-const handleSubmitOffline = async (e: React.FormEvent) => {
+  const handleSubmitOffline = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateStep1()) {
       setCurrentStep(1);
@@ -293,6 +290,8 @@ const handleSubmitOffline = async (e: React.FormEvent) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
       <div className="glass-panel w-full max-w-lg rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl border border-emerald-500/30 max-h-[92vh] overflow-y-auto relative bg-white/95 dark:bg-gray-950/95 text-gray-900 dark:text-white">
+        
+        {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-5 right-5 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -302,42 +301,33 @@ const handleSubmitOffline = async (e: React.FormEvent) => {
 
         {!submittedApt ? (
           <>
+            {/* Header */}
             <div className="text-center space-y-2 pt-2">
               <span className="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-teal-300 text-[11px] font-bold uppercase tracking-wider">
-                {t('paidConsultationBadge')}
+                Direct Clinic Triage • Book your appointment!
               </span>
               <h2 className="font-serif text-2xl sm:text-3xl font-bold text-emerald-950 dark:text-white leading-tight">
-                {t('appointmentHeading')}
+                Take the Next Step in Your Fertility Journey
               </h2>
               <p className="text-xs text-gray-600 dark:text-gray-300 font-medium">
-                {t('appointmentSubtitle')}
+                Schedule your visit today with Dr. Umesh Datta Kalekar!
               </p>
             </div>
 
+            {/* Branch Schedule Guidance */}
             <div className="p-3 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/40 text-[11px] space-y-1 text-emerald-900 dark:text-teal-300">
               <p className="font-bold flex items-center gap-1.5">
-                <Building2 className="w-3.5 h-3.5 text-emerald-600" /> {t('branchScheduleTitle')}
+                <Building2 className="w-3.5 h-3.5 text-emerald-600" /> Day-Wise Branch Consultation Schedule:
               </p>
-              <p>• <strong>Kolhapur Branch</strong>: Mondays, Wednesdays & Fridays (10 AM to 5 PM)</p>
-              <p>• <strong>Shirol Branch (HQ)</strong>: Tuesdays, Thursdays & Saturdays (10 AM to 6 PM)</p>
-              <p>• <strong>Sunday</strong>: {t('sundayClosed')}</p>
-              <p className="text-[10px] text-amber-700 dark:text-amber-400 font-semibold">• {t('sonographyNote')}</p>
+              <p>• <strong>Kolhapur Branch</strong>: Mondays & Wednesdays (10 AM to 5 PM)</p>
+              <p>• <strong>Shirol Branch (HQ)</strong>: Tuesdays, Thursdays, Fridays, & Saturdays (10 AM to 6 PM)</p>
+              <p className="text-[10px] text-amber-700 dark:text-amber-400 font-semibold">• Note: Sonography is available ONLY at Shirol Branch (Tue, Thu, Sat).</p>
             </div>
 
-            <div className="p-3 rounded-2xl bg-blue-50/80 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-900/60 text-[11px] text-blue-900 dark:text-blue-200">
-              <p className="font-bold flex items-center gap-1.5"><Info className="w-3.5 h-3.5" /> {t('branchGuideTitle')}</p>
-              <p>• {t('branchGuideNote')}</p>
-              <p>• {t('suggestedDays')} {nextAvailableDates.map(date => date).join(' • ')}</p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className={`h-1.5 flex-1 rounded-full ${currentStep === 1 ? 'bg-emerald-700' : 'bg-emerald-100 dark:bg-emerald-950'}`} />
-              <div className={`h-1.5 flex-1 rounded-full ${currentStep === 2 ? 'bg-emerald-700' : 'bg-emerald-100 dark:bg-emerald-950'}`} />
-            </div>
-
-            <form onSubmit={handleSubmitOffline} className="space-y-4">
+            <form className="space-y-4">
               {currentStep === 1 && (
                 <>
+                  {/* Full Name */}
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">{t('fullName')}</label>
                     <div className="relative">
@@ -354,7 +344,10 @@ const handleSubmitOffline = async (e: React.FormEvent) => {
                     {fieldErrors.patientName && <p className="text-[10px] text-red-600 font-semibold flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {fieldErrors.patientName}</p>}
                   </div>
 
+                  {/* Mobile Number & City/Village */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    
+                    {/* Mobile Number */}
                     <div className="space-y-1">
                       <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">{t('mobileNumber')}</label>
                       <div className="flex rounded-xl border border-gray-300 dark:border-gray-700 overflow-hidden bg-white/70 dark:bg-gray-900/70">
@@ -364,24 +357,24 @@ const handleSubmitOffline = async (e: React.FormEvent) => {
                         <input
                           type="tel"
                           required
-                          maxLength={10}
                           placeholder="9876543210"
                           value={patientPhone}
-                          onChange={(e) => setPatientPhone(e.target.value.replace(/[^0-9]/g, '').slice(0, 10))}
+                          onChange={(e) => setPatientPhone(e.target.value)}
                           className="w-full px-3 py-3 text-xs font-medium bg-transparent outline-none"
                         />
                       </div>
                       {fieldErrors.patientPhone && <p className="text-[10px] text-red-600 font-semibold flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {fieldErrors.patientPhone}</p>}
                     </div>
 
+                    {/* Patient City / Village Name */}
                     <div className="space-y-1">
-                      <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">{t('cityVillage')}</label>
+                      <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">{t('patientCity')}</label>
                       <div className="relative">
                         <MapPin className="w-4 h-4 text-emerald-700 dark:text-teal-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                         <input
                           type="text"
                           required
-                          placeholder="e.g. Shirol, Ichalkaranji, Kolhapur"
+                          placeholder="e.g. Shirol, Kolhapur"
                           value={patientCity}
                           onChange={(e) => setPatientCity(e.target.value)}
                           className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-900/70 text-xs font-medium focus:ring-2 focus:ring-emerald-700 outline-none"
@@ -389,10 +382,12 @@ const handleSubmitOffline = async (e: React.FormEvent) => {
                       </div>
                       {fieldErrors.patientCity && <p className="text-[10px] text-red-600 font-semibold flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {fieldErrors.patientCity}</p>}
                     </div>
+
                   </div>
 
+                  {/* Branch Selector */}
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">{t('selectBranch')}</label>
+                    <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">Select Clinic Branch *</label>
                     <select
                       value={branch}
                       onChange={(e) => handleBranchChange(e.target.value as BranchName)}
@@ -403,7 +398,9 @@ const handleSubmitOffline = async (e: React.FormEvent) => {
                     </select>
                   </div>
 
+                  {/* Date & Time Slot */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    
                     <div className="space-y-1">
                       <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">{t('preferredDate')}</label>
                       <input
@@ -426,7 +423,7 @@ const handleSubmitOffline = async (e: React.FormEvent) => {
                         className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-900/70 text-xs font-medium outline-none"
                       >
                         {TIME_SLOTS.map(slot => (
-                          <option key={slot} value={slot}>{slot} (Morning)</option>
+                          <option key={slot} value={slot}>{slot}</option>
                         ))}
                       </select>
                     </div>
@@ -434,8 +431,8 @@ const handleSubmitOffline = async (e: React.FormEvent) => {
 
                   <div className="rounded-xl bg-slate-50 dark:bg-slate-900/60 p-3 text-[11px] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800">
                     <p className="font-semibold text-emerald-900 dark:text-emerald-300">Appointment summary</p>
-                    <p className="mt-1 text-gray-600 dark:text-gray-300">Consultation fee: ₹{CONSULTATION_FEE}</p>
-                    <p className="text-gray-500 dark:text-gray-400">Choose Online Booking to pay instantly via UPI apps, or Offline Booking to pay at the clinic.</p>
+                    <p className="mt-1 text-gray-600 dark:text-gray-300 font-bold">Book your appointment!</p>
+                    <p className="text-gray-500 dark:text-gray-400">Choose Online Booking to pay or confirm via UPI apps, or Offline Booking to pay at the clinic.</p>
                   </div>
 
                   {stepError && <p className="text-[10px] text-red-600 font-semibold flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {stepError}</p>}
@@ -482,13 +479,22 @@ const handleSubmitOffline = async (e: React.FormEvent) => {
                           <div>
                             <p className="text-[11px] uppercase tracking-[0.2em] text-emerald-800 dark:text-emerald-300 font-bold">UPI / GPay</p>
                             <p className="text-sm font-bold text-emerald-950 dark:text-white">{UPI_ID}</p>
-                            <p className="text-[11px] text-gray-600 dark:text-gray-300">Scan the QR code or tap an app below to pay ₹{CONSULTATION_FEE}.</p>
+                            <p className="text-[11px] text-gray-600 dark:text-gray-300">Click QR code to zoom and scan with any UPI app.</p>
                           </div>
-                          <img
-                            src="/assets/payment/upi_qr.png"
-                            alt="Clinic UPI QR Code"
-                            className="w-24 h-24 rounded-2xl bg-white dark:bg-white border border-emerald-300 dark:border-emerald-800 object-contain shadow-sm"
-                          />
+                          
+                          {/* Clickable Zoomable UPI scanner image */}
+                          <div 
+                            className="relative cursor-zoom-in" 
+                            onClick={() => setZoomScanner(true)}
+                            title="Click to Zoom UPI QR Code"
+                          >
+                            <img
+                              src="/assets/clinic/upi_scanner.jpg"
+                              alt="Clinic UPI QR Code"
+                              className="w-24 h-24 rounded-2xl bg-white border border-emerald-300 dark:border-emerald-800 object-contain shadow-sm hover:scale-105 transition-transform"
+                            />
+                            <span className="absolute bottom-1 right-1 bg-black/60 text-white text-[8px] px-1 rounded">Zoom</span>
+                          </div>
                         </div>
 
                         {/* UPI app launcher buttons */}
@@ -528,7 +534,6 @@ const handleSubmitOffline = async (e: React.FormEvent) => {
                               className="w-full px-3 py-3 text-xs font-medium bg-transparent outline-none"
                             />
                           </div>
-                          <p className="text-[10px] text-gray-400">Enter the mobile number linked to the UPI app used for payment.</p>
                         </div>
 
                         <div className="space-y-1">
@@ -551,20 +556,19 @@ const handleSubmitOffline = async (e: React.FormEvent) => {
                               Auto
                             </button>
                           </div>
-                          <p className="text-[10px] text-gray-400">After paying, your UPI app shows a 12-digit UTR. Enter it here to confirm your booking.</p>
+                          <p className="text-[10px] text-gray-400">After paying, enter the 12-digit UTR transaction number to confirm.</p>
                         </div>
                       </div>
 
                       {paymentModeError && <p className="text-[10px] text-red-600 font-semibold flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {paymentModeError}</p>}
 
-                      {/* Online booking confirm */}
                       <button
                         type="submit"
                         onClick={handleSubmitOnline}
                         className="w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-700 via-indigo-700 to-blue-800 hover:from-blue-800 hover:to-indigo-800 text-white font-bold text-sm shadow-xl transition-all flex items-center justify-center gap-2 active:scale-95"
                       >
                         <BadgeCheck className="w-4 h-4" />
-                        <span>Confirm Online Booking (send confirmation)</span>
+                        <span>Confirm Appointment Booking</span>
                       </button>
                     </>
                   )}
@@ -578,8 +582,8 @@ const handleSubmitOffline = async (e: React.FormEvent) => {
                           </div>
                           <div>
                             <p className="text-[11px] uppercase tracking-[0.2em] text-emerald-800 dark:text-emerald-300 font-bold">Offline Booking</p>
-                            <p className="text-sm font-bold text-emerald-950 dark:text-white">Pay ₹{CONSULTATION_FEE} at Clinic</p>
-                            <p className="text-[11px] text-gray-600 dark:text-gray-300">Settle the fee when you visit the clinic. A booking confirmation will be sent to the clinic WhatsApp.</p>
+                            <p className="text-sm font-bold text-emerald-950 dark:text-white">Book your appointment!</p>
+                            <p className="text-[11px] text-gray-600 dark:text-gray-300">Settle consultation details when you visit the clinic. A booking request is dispatched to reception instantly.</p>
                           </div>
                         </div>
                       </div>
@@ -592,13 +596,13 @@ const handleSubmitOffline = async (e: React.FormEvent) => {
                         className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-800 to-teal-700 hover:from-emerald-900 hover:to-teal-800 text-white font-bold text-sm shadow-xl transition-all flex items-center justify-center gap-2 active:scale-95"
                       >
                         <Calendar className="w-4 h-4" />
-                        <span>Confirm Offline Booking</span>
+                        <span>Confirm Booking Request</span>
                       </button>
                     </>
                   )}
 
                   <div className="rounded-xl bg-amber-50 dark:bg-amber-950/40 p-3 text-[11px] text-amber-900 dark:text-amber-300 border border-amber-200 dark:border-amber-900">
-                    Consultation fee: ₹{CONSULTATION_FEE} • {paymentMode === 'ONLINE' ? t('onlinePaymentAccepted') : t('payAtClinicText')}
+                    Book your appointment! Pay at clinic or confirm details.
                   </div>
 
                   <div className="flex gap-3">
@@ -681,7 +685,30 @@ const handleSubmitOffline = async (e: React.FormEvent) => {
           </div>
         )}
       </div>
+
+      {/* UPI Scanner Zoom Modal Overlay */}
+      {zoomScanner && (
+        <div 
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90 cursor-zoom-out" 
+          onClick={() => setZoomScanner(false)}
+        >
+          <div className="relative max-w-sm w-full bg-white dark:bg-gray-900 rounded-3xl p-6 text-center space-y-4 border border-emerald-500/20 shadow-2xl">
+            <button
+              onClick={() => setZoomScanner(false)}
+              className="absolute top-4 right-4 p-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            >
+              <X className="w-5 h-5 text-gray-800 dark:text-white" />
+            </button>
+            <p className="font-serif font-bold text-gray-900 dark:text-white text-base">Scan to Pay & Register</p>
+            <img
+              src="/assets/clinic/upi_scanner.jpg"
+              alt="Clinic UPI QR Code Zoomed"
+              className="w-full h-auto max-h-[60vh] rounded-2xl border border-gray-200 dark:border-gray-800 shadow-md object-contain mx-auto"
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold">Tap anywhere to close zoom</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
-

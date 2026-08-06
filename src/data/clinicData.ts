@@ -40,9 +40,9 @@ export const CLINIC_DATA: ClinicConfig = {
       address: "Near Deshmukh Hall, Hari Om Nagar, Kolhapur, Maharashtra 416008",
       landmark: "Near Deshmukh Hall, Hari Om Nagar",
       distanceInfo: "1.5 km from Kolhapur Railway Station & Central Bus Stand",
-      daysAvailable: "Mondays, Wednesdays & Fridays (10 AM to 5 PM)",
+      daysAvailable: "Mondays & Wednesdays (10 AM to 5 PM)",
       hours: "10 AM to 5 PM",
-      gmapsUrl: "https://www.google.com/maps/search/?api=1&query=Astygma+Hope+Fertility+Clinic+Kolhapur+Branch+Hari+Om+Nagar",
+      gmapsUrl: "https://www.mappls.com/place-astygma+hope+clinic-rankala+mhada+sankul-near+deshmukh+hall-hari+om+nagar-kolhapur-maharashtra-416012-rs0ajq@zdata=MTYuNjgzMjM2Kzc0LjIxNTUwNysxNytyczBhanErKw==ed",
       hasSonography: false,
       imagePath: "/assets/clinic/kolhapur_branch.jpg"
     }
@@ -74,7 +74,7 @@ desc: "The clinic is led by Dr. Umesh Datta Kalekar, whose 31+ years of clinical
   },
   {
     title: "Transparent Booking Experience",
-    desc: "Appointments can be booked directly with a simple ₹500 consultation fee — paid online or at the clinic — making the first step simple, clear, and reassuring."
+    desc: "Book your appointment! It is simple, fast, and does not require online payment. Confirmations are handled directly by our reception triage."
   }
 ];
 
@@ -218,62 +218,7 @@ export const SERVICES_DATA: ServiceItem[] = [
   }
 ];
 
-export const INITIAL_SOUND_TRACKS: SoundTrack[] = [
-  {
-    id: "snd-01",
-    title: "A-Dhyand Deep Meditation",
-    category: "Meditation",
-    duration: "15:00",
-    filePath: "/assets/music/meditation/a_dhyand_meditation.mp3",
-    frequencyHz: 432,
-    description: "Dr. Umesh Datta Kalekar's signature meditation frequency designed for deep mental stillness and endocrine harmony."
-  },
-  {
-    id: "snd-02",
-    title: "Garbhasanskar Fetal Bonding Raga",
-    category: "Pregnancy",
-    duration: "20:00",
-    filePath: "/assets/music/pregnancy/garbhasanskar_raga.mp3",
-    frequencyHz: 528,
-    description: "Soothing harmonic soundwaves formulated to nurture fetal auditory development and maternal calming."
-  },
-  {
-    id: "snd-03",
-    title: "Cellular Healing Soundscape",
-    category: "Healing",
-    duration: "12:30",
-    filePath: "/assets/music/healing/cellular_healing.mp3",
-    frequencyHz: 639,
-    description: "Gentle acoustic resonance supporting tissue regeneration and stress hormone clearance."
-  },
-  {
-    id: "snd-04",
-    title: "Deep Autonomic Relaxation",
-    category: "Relaxation",
-    duration: "18:45",
-    filePath: "/assets/music/relaxation/autonomic_relaxation.mp3",
-    frequencyHz: 396,
-    description: "Calming parasympathetic tone aimed at alleviating reproductive anxiety and insomnia."
-  },
-  {
-    id: "snd-05",
-    title: "Ultra Yoga Flow Atmosphere",
-    category: "Yoga",
-    duration: "25:00",
-    filePath: "/assets/music/yoga/ultra_yoga_flow.mp3",
-    frequencyHz: 741,
-    description: "Rhythmic breathing soundscape matched to pelvic movement cycles during Ultra Yoga sessions."
-  },
-  {
-    id: "snd-06",
-    title: "Western Ghats Natural Rain & Birds",
-    category: "Nature",
-    duration: "30:00",
-    filePath: "/assets/music/nature/western_ghats_rain.mp3",
-    frequencyHz: 432,
-    description: "Pure ambient nature recording from Maharashtra rainforests for grounding and peaceful sleep."
-  }
-];
+export const INITIAL_SOUND_TRACKS: SoundTrack[] = [];
 
 export const SOUND_TRACKS = INITIAL_SOUND_TRACKS;
 

@@ -91,10 +91,11 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenAppointment }) =
         {/* Left Column: Contact Cards */}
         <div className="lg:col-span-5 space-y-6">
           
+          {/* Shirol HQ Branch Card */}
           <div className="glass-panel rounded-3xl p-6 space-y-4 border border-emerald-800/20">
             <h3 className="font-serif font-bold text-lg text-emerald-950 dark:text-white flex items-center gap-2">
               <Building2 className="w-5 h-5 text-emerald-700 dark:text-teal-400" />
-              <span>{t('shirolBranchLocation')}</span>
+              <span>Shirol HQ Branch</span>
             </h3>
             
             <a
@@ -105,7 +106,8 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenAppointment }) =
             >
               <MapPin className="w-4 h-4 text-emerald-700 dark:text-teal-400 shrink-0 mt-0.5" />
               <span>
-                {CLINIC_DATA.address.line1}, {CLINIC_DATA.address.line2}, {CLINIC_DATA.address.landmark}, {CLINIC_DATA.address.city}, {CLINIC_DATA.address.state} - {CLINIC_DATA.address.pincode}, {CLINIC_DATA.address.country}
+                {CLINIC_DATA.branches.shirol.address} <br/>
+                <strong className="text-[10px] text-amber-600 dark:text-amber-400">({CLINIC_DATA.branches.shirol.distanceInfo})</strong>
               </span>
             </a>
 
@@ -122,6 +124,43 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenAppointment }) =
               className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-teal-300 font-semibold text-xs hover:underline"
             >
               <MapPin className="w-3.5 h-3.5" /> {t('viewOnMap')}
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+
+          {/* Kolhapur Branch Card */}
+          <div className="glass-panel rounded-3xl p-6 space-y-4 border border-teal-500/20">
+            <h3 className="font-serif font-bold text-lg text-emerald-950 dark:text-white flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-teal-600" />
+              <span>Kolhapur Branch</span>
+            </h3>
+            
+            <a
+              href={CLINIC_DATA.branches.kolhapur.gmapsUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-start gap-3 text-xs text-gray-700 dark:text-gray-300 hover:text-emerald-700 dark:hover:text-teal-300 transition-colors"
+            >
+              <MapPin className="w-4 h-4 text-emerald-700 dark:text-teal-400 shrink-0 mt-0.5" />
+              <span>
+                {CLINIC_DATA.branches.kolhapur.address} <br/>
+                <strong className="text-[10px] text-amber-600 dark:text-amber-400">({CLINIC_DATA.branches.kolhapur.distanceInfo})</strong>
+              </span>
+            </a>
+
+            <div className="flex items-center gap-3 text-xs text-gray-700 dark:text-gray-300">
+              <Clock className="w-4 h-4 text-emerald-700 dark:text-teal-400 shrink-0" />
+              <span>{CLINIC_DATA.branches.kolhapur.daysAvailable} ({CLINIC_DATA.branches.kolhapur.hours})</span>
+            </div>
+            <p className="text-[11px] text-amber-600 font-semibold pl-7">• {t('sundayClosed')}</p>
+
+            <a
+              href={CLINIC_DATA.branches.kolhapur.gmapsUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-teal-300 font-semibold text-xs hover:underline"
+            >
+              <MapPin className="w-3.5 h-3.5" /> View on Mappls Map
               <ExternalLink className="w-3 h-3" />
             </a>
           </div>

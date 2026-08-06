@@ -190,3 +190,34 @@ body::before {
   }
 }
 
+/* Theme Text Color Overrides for High Readability */
+.dark, .theme-diwali, .theme-navratri {
+  color: var(--text-primary);
+}
+
+.dark .text-emerald-950, .theme-diwali .text-emerald-950, .theme-navratri .text-emerald-950,
+.dark .text-slate-900, .theme-diwali .text-slate-900, .theme-navratri .text-slate-900,
+.dark .text-gray-900, .theme-diwali .text-gray-900, .theme-navratri .text-gray-900 {
+  color: var(--text-primary) !important;
+}
+
+.dark .text-gray-700, .theme-diwali .text-gray-700, .theme-navratri .text-gray-700,
+.dark .text-slate-700, .theme-diwali .text-slate-700, .theme-navratri .text-slate-700,
+.dark .text-gray-600, .theme-diwali .text-gray-600, .theme-navratri .text-gray-600 {
+  color: var(--text-muted) !important;
+}
+
+.dark .bg-white, .theme-diwali .bg-white, .theme-navratri .bg-white {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark .bg-slate-50, .theme-diwali .bg-slate-50, .theme-navratri .bg-slate-50,
+.dark .bg-gray-100, .theme-diwali .bg-gray-100, .theme-navratri .bg-gray-100 {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.theme-diwali .glass-panel, .theme-navratri .glass-panel {
+  background: var(--bg-card) !important;
+}
+
